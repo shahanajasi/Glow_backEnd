@@ -4,9 +4,9 @@ import { ObjectId } from "mongoose";
 
 const postProduct = async (req, res) => {
   try {
-    const {id, name, price, description, category } = req.body;
+    const { id, name, price, description, category } = req.body;
 
-    const newProduct = new Product({ id,name, price, description, category });
+    const newProduct = new Product({ id, name, price, description, category });
     await newProduct.save();
 
     res.status(201).json({
@@ -37,8 +37,8 @@ const gettingIDwise = async (req, res) => {
   console.log(productId);
 
   try {
-    const product = await Product.findById(productId );
-    console.log(product)
+    const product = await Product.findById(productId);
+    console.log(product);
     if (product) {
       return res.status(200).json({ message: "Product found", data: product });
     } else {
@@ -49,4 +49,32 @@ const gettingIDwise = async (req, res) => {
   }
 };
 
-export { getProducts, postProduct, gettingIDwise };
+const gettingQuerywise = async (req, res) => {
+  const productCategory = req.query.category;
+
+  if (!productCategory) {
+    return res.status(400).json({ message: "Category query parameter is required" });
+  }
+
+  console.log("Category:", productCategory);
+
+  try {
+    const products = await Product.find({ category: productCategory });
+    console.log("Query object:", { category: products });
+
+    if (products.length > 0) {
+      return res
+        .status(200)
+        .json({ message: "Products found", data: products });
+    } else {
+      return res
+        .status(404)
+        .json({ message: "No products found in this category" });
+    }
+  } catch (error) {
+    console.error("Error:", error.message);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export { getProducts, postProduct, gettingIDwise, gettingQuerywise };

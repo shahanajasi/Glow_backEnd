@@ -26,6 +26,19 @@ const cartItemSchema = new mongoose.Schema({
   },
 });
 
+const purchaseItemSchema = new mongoose.Schema({
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product",
+    required: true,
+  },
+  quantity: {
+    type: Number,
+    default: 1,
+    required: true,
+  },
+});
+
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -54,6 +67,10 @@ const userSchema = new mongoose.Schema({
   },
   wishList: {
     type: [wishListItemSchema],
+    default: [],
+  },
+  purchase: {
+    type: [purchaseItemSchema],
     default: [],
   },
 });

@@ -4,7 +4,6 @@ import connectDB from "./config/db.js";
 import EmailValidation from "./validation/validation.js";
 import { config } from "dotenv";
 
-
 const app = express();
 app.use(express.json());
 config()
