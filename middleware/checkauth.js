@@ -1,21 +1,28 @@
-import jwt from "jsonwebtoken"
-const checkauth = (req,res,next)=>{
-    try{
-        const token = req.headers.authorization
-        console.log(token)
-        if(!token){
-            return res.status(401).json({
-                message:`Access denied`
-            })
-        }
-        const tokenaValid = jwt.verify(token,process.env.ACCESS_TOKEN_SECRET )
-        if(!tokenaValid){
-            return res.status(500).json({message:`you are not authorized`})
-        }
+import jwt from "jsonwebtoken";
 
-        next()
-    }catch(error){
-        res.status(401).json({succes:false,message:error.message})
+const checkauth = (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    console.log("Token:", token); 
+
+    if (!token) {
+      return res.status(401).json({
+        message: `Access denied`,
+      });
     }
-}
-export default checkauth
+
+    const tokenValid = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    console.log("Decoded Token:", tokenValid); 
+
+    if (!tokenValid) {
+      return res.status(500).json({ message: `You are not authorized` });
+    }
+
+    req.user = tokenValid; 
+    next();
+  } catch (error) {
+    res.status(401).json({ success: false, message: error.message });
+  }
+};
+
+export default checkauth;

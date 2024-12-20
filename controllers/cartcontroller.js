@@ -45,4 +45,62 @@ const addToCart = async (req, res) => {
   }
 };
 
-export default addToCart;
+const getCartAndCalculateTotal = async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    const result = await User.aggregate([
+      { $match: { _id: userId } },
+
+      {
+        $lookup: {
+          from: "products",
+          localField: "cart.productId",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+
+      { $unwind: "$cart" },
+
+      { $unwind: "$productDetails" },
+
+      {
+        $addFields: {
+          "cart.totalPrice": {
+            $multiply: ["$cart.quantity", "$productDetails.price"],
+          },
+        },
+      },
+
+      {
+        $group: {
+          _id: "$_id",
+          cart: { $push: "$cart" },
+          totalPrice: { $sum: "$cart.totalPrice" },
+          totalQuantity: { $sum: "$cart.quantity" },
+        },
+      },
+    ]);
+
+    if (result.length === 0) {
+      return res.status(404).json({ message: "No cart found for this user" });
+    }
+
+    res.status(200).json({
+      message:
+        "Cart details, total price, and total quantity retrieved successfully",
+      cart: result[0].cart,
+      totalPrice: result[0].totalPrice,
+      totalQuantity: result[0].totalQuantity,
+    });
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+export { addToCart, getCartAndCalculateTotal };
