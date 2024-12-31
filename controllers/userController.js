@@ -1,6 +1,6 @@
 import User from "../models/userSchema.js";
 import { generatehashedPassword, comparePassword } from "../utils/bcrypt.js";
-import generateAccessToken from "../utils/jwt.js";
+import {generateAccessToken}from "../utils/jwt.js";
 import EmailValidation from "../validation/validation.js";
 // import bcrypt from "bcrypt"
 
