@@ -4,9 +4,9 @@ import { ObjectId } from "mongoose";
 
 const postProduct = async (req, res) => {
   try {
-    const { id, name, price, description, category } = req.body;
+    const { id, name, price, description, category ,quantity} = req.body;
 
-    const newProduct = new Product({ id, name, price, description, category });
+    const newProduct = new Product({ id, name, price, description, category ,quantity});
     await newProduct.save();
 
     res.status(201).json({

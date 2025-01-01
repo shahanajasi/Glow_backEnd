@@ -15,6 +15,11 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  quantity:{
+    type:Number,
+    required :true,
+    trim:true
+  }
 });
 
 const Product = mongoose.model("Product", ProductSchema);

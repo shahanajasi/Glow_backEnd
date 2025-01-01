@@ -69,10 +69,18 @@ const userSchema = new mongoose.Schema({
     type: [wishListItemSchema],
     default: [],
   },
-  purchase: {
+  purchase: [{
     type: [purchaseItemSchema],
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    quantity: { type: Number, default: 1 },
     default: [],
-  },
+  }],
+  // purchases:[
+  //   {    
+  //     type: [purchaseItemSchema],
+  //     productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+  //     quantity: { type: Number, default: 1 },
+  //   }]
 });
 const User = mongoose.model("user", userSchema);
 export default User;

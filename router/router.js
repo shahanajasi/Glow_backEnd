@@ -7,7 +7,7 @@ import addToWishList from "../controllers/wishListController.js";
 import postToPurchase from "../controllers/purchaseController.js";
 import { adminLogin, adminSignUp } from "../controllers/adminController.js";
 import authorizeAdmin from "../middleware/adminmiddleware.js";
-import { admincreateproduct, admindeleteaproductbyid, adminGetAllUsers, admingetproductbyid, admingetproductbyquery, admingetUserById, adminupdateaproductbyid } from "../controllers/adminUserController.js";
+import { admincreateproduct, admindeleteaproductbyid, adminGetAllUsers, admingetproductbyid, admingetproductbyquery, admingetUserById, adminupdateaproductbyid, getadminTotalProductsPurchased } from "../controllers/adminUserController.js";
 import adminproduct from "../middleware/adminproduct.js";
 
 const router = express.Router();
@@ -19,6 +19,7 @@ router.post("/admincreateproduct",adminproduct,admincreateproduct)
 router.post("/postproduct", postProduct);
 router.post("/addToCart/:userId",addToCart)
 router.post("/addToWishList/:userId",addToWishList)
+router.get("/getadminTotalProductsPurchased",authorizeAdmin,getadminTotalProductsPurchased)
 router.get("/admingetAllUsers",authorizeAdmin,adminGetAllUsers)
 router.get("/admingetuserbyId/:id",authorizeAdmin,admingetUserById)
 router.get("/admingetproductbyquery/query",authorizeAdmin,admingetproductbyquery)
