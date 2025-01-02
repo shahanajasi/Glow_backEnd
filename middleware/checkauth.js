@@ -16,7 +16,7 @@ const checkauth = (req, res, next) => {
     if (!tokenValid) {
       return res.status(500).json({ message: `You are not authorized` });
     }
-
+    req.user = { userId: tokenValid._id}
     next();
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

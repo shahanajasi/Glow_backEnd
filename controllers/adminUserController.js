@@ -181,7 +181,55 @@ const getadminTotalProductsPurchased = async (req, res) => {
       }
     };
     
-  
+    const getAdminTotalRevenue = async (req, res) => {
+        try {
+          const result = await User.aggregate([
+            { $unwind: "$purchase" },
+            {
+              $lookup: {
+                from: "products",
+                localField: "purchase.productId",
+                foreignField: "_id",
+                as: "productDetails",
+              },
+            },
+            { $unwind: "$productDetails" },
+            {
+              $group: {
+                _id: null,
+                totalRevenue: {
+                  $sum: { $multiply: ["$purchase.quantity", "$productDetails.price"] },
+                },
+              },
+            },
+          ]);
+      
+          const totalRevenue = result[0]?.totalRevenue || 0;
+          res.status(200).json({ totalRevenue });
+        } catch (error) {
+          res.status(500).json({ error: error.message });
+        }
+      };
+
+      const getTotalOrders = async (req, res) => {
+        try {
+          const result = await User.aggregate([
+            { $unwind: "$purchase" },
+            {
+              $group: {
+                _id: null,
+                totalOrders: { $sum: 1 },
+              },
+            },
+          ]);
+      
+          const totalOrders = result[0]?.totalOrders || 0;
+          res.status(200).json({ totalOrders });
+        } catch (error) {
+          res.status(500).json({ error: error.message });
+        }
+      };
+      
 
 export {
   adminGetAllUsers,
@@ -191,5 +239,7 @@ export {
   admincreateproduct,
   admindeleteaproductbyid,
   adminupdateaproductbyid,
-  getadminTotalProductsPurchased
+  getadminTotalProductsPurchased,
+  getAdminTotalRevenue,
+  getTotalOrders
 };

@@ -7,9 +7,6 @@ const postToPurchase = async (req, res) => {
     const userId = req.params.userId;
     const productId = req.body.productId;
 
-    console.log("User ID:", userId);
-    console.log("Product ID:", productId);
-
     const product = await Product.findById(productId);
     const user = await User.findById(userId);
 
@@ -33,7 +30,10 @@ const postToPurchase = async (req, res) => {
     if (existingProduct) {
       existingProduct.quantity += 1;
     } else {
-      purchase.push(cart);
+      purchase.push({
+        productId: product._id,
+        quantity: 1,
+      });
     }
 
     user.purchase = purchase;
@@ -46,9 +46,52 @@ const postToPurchase = async (req, res) => {
       purchase,
     });
   } catch (error) {
-    console.error("Error:", error.message);
     res.status(500).json({ error: error.message });
   }
 };
 
-export default postToPurchase;
+const getUserPurchaseDetails = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    console.log("userId:", userId); 
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid userId" });
+    }
+
+
+    const user = await User.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(userId) } },
+      { $unwind: "$purchase" },
+      {
+        $lookup: {
+          from: "products",
+          localField: "purchase.productId",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      { $unwind: "$productDetails" },
+      {
+        $project: {
+          _id: 0,
+          username: 1,
+          email: 1,
+          productName: "$productDetails.name",
+          productPrice: "$productDetails.price",
+          quantity: "$purchase.quantity",
+          totalPrice: { $multiply: ["$purchase.quantity", "$productDetails.price"] },
+        },
+      },
+    ]);
+
+    if (user.length === 0) {
+      return res.status(404).json({ message: "No orders history found." });
+    }
+
+    res.status(200).json({ userPurchaseDetails: user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export { postToPurchase, getUserPurchaseDetails };
